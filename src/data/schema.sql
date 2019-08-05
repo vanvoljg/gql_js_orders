@@ -17,6 +17,8 @@ CREATE TABLE payments (
   FOREIGN KEY (order_id) REFERENCES orders (id)
 );
 
+CREATE INDEX ON payments (order_id);
+
 INSERT INTO orders(description, total, balance_due) VALUES('test order 1', 80.40, 40.40) RETURNING *;
 INSERT INTO payments(amount, applied_at, order_id) VALUES('40', 'NOW', 1);
 INSERT INTO orders(description, total, balance_due) VALUES('test order 2', 80.40, 80.40) RETURNING *;
