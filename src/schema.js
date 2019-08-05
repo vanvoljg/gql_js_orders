@@ -8,6 +8,7 @@ const {
 } = require('graphql');
 
 const OrderType = require('./models/OrderType.js');
+const PaymentType = require('./models/PaymentType.js');
 
 const db = require('./pg.js');
 
@@ -34,24 +35,6 @@ const getPayments = async () => {
   const query = `SELECT * FROM payments;`;
   return await poolQuery({ query });
 };
-
-const PaymentType = new GraphQLObjectType({
-  name: 'Payment',
-  description: 'A payment',
-
-  fields: () => ({
-    id: { type: GraphQLString },
-    amount: { type: GraphQLString },
-    appliedAt: {
-      type: GraphQLString,
-      resolve: (payment) => payment.applied_at,
-    },
-    orderId: {
-      type: GraphQLString,
-      resolve: (payment) => payment.order_id,
-    },
-  }),
-});
 
 const QueryType = new GraphQLObjectType({
   name: 'Query',
