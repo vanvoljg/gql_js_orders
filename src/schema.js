@@ -7,48 +7,33 @@ const {
   GraphQLList,
 } = require('graphql');
 
+const OrderType = require('./models/OrderType.js');
+
 const db = require('./pg.js');
 
-const getOrders = async () => {
-  const client = await db.pool.connect();
-
-  const query = `SELECT * FROM orders;`;
+const poolQuery = async ({ query, values }) => {
+  let client;
 
   try {
-    const results = await client.query(query);
+    client = await db.pool.connect();
+    const results = await client.query(query, values);
     return results.rows;
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    await client.release(true);
   }
+};
+
+const getOrders = async () => {
+  const query = `SELECT * FROM orders`;
+  return await poolQuery({ query });
 };
 
 const getPayments = async () => {
-  const client = await db.pool.connect();
-
   const query = `SELECT * FROM payments;`;
-
-  try {
-    const results = await client.query(query);
-    return results.rows;
-  } catch (err) {
-    console.error(err);
-  }
+  return await poolQuery({ query });
 };
-
-const OrderType = new GraphQLObjectType({
-  name: 'Order',
-  description: 'An order',
-
-  fields: () => ({
-    id: { type: GraphQLString },
-    description: { type: GraphQLString },
-    total: { type: GraphQLString },
-    balanceDue: {
-      type: GraphQLString,
-      resolve: (order) => order.balance_due,
-    },
-  }),
-});
 
 const PaymentType = new GraphQLObjectType({
   name: 'Payment',
