@@ -1,0 +1,17 @@
+{
+  "name": "peek_orders",
+  "version": "1.0.0",
+  "description": "GraphQL back-end API",
+  "main": "index.js",
+  "repository": "https://github.com/vanvoljg/peek_orders.git",
+  "author": "Jesse Van Volkinburg <vanvoljg@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "eslint": "^6.1.0",
+    "prettier": "^1.18.2"
+  },
+  "dependencies": {
+    "dotenv": "^8.0.0"
+  }
+}
