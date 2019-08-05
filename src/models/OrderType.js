@@ -1,6 +1,13 @@
 'use strict';
 
-const { GraphQLObjectType, GraphQLString, GraphQLList } = require('graphql');
+const {
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLList,
+  GraphQLInputObjectType,
+} = require('graphql');
+const PaymentType = require('./PaymentType.js');
+const resolvers = require('../resolvers.js');
 
 const OrderType = new GraphQLObjectType({
   name: 'Order',
@@ -13,6 +20,10 @@ const OrderType = new GraphQLObjectType({
     balanceDue: {
       type: GraphQLString,
       resolve: (order) => order.balance_due,
+    },
+    paymentsApplied: {
+      type: new GraphQLList(PaymentType),
+      resolve: (order) => resolvers.getPaymentsByOrderId(order.id),
     },
   }),
 });
