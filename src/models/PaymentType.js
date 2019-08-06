@@ -1,23 +1,31 @@
 'use strict';
 
-const { GraphQLObjectType, GraphQLString } = require('graphql');
+const {
+  GraphQLID,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
+} = require('graphql');
+const OrderType = require('./OrderType.js');
+const resolvers = require('../pgResolvers.js');
 
 const PaymentType = new GraphQLObjectType({
   name: 'Payment',
   description: 'A payment',
 
-  fields: () => ({
-    id: { type: GraphQLString },
-    amount: { type: GraphQLString },
+  fields: {
+    id: { type: GraphQLNonNull(GraphQLID) },
+    amount: { type: GraphQLNonNull(GraphQLString) },
     appliedAt: {
-      type: GraphQLString,
+      type: GraphQLNonNull(GraphQLString),
       resolve: (payment) => payment.applied_at,
     },
+    note: { type: GraphQLNonNull(GraphQLString) },
     orderId: {
-      type: GraphQLString,
+      type: GraphQLNonNull(GraphQLID),
       resolve: (payment) => payment.order_id,
     },
-  }),
+  },
 });
 
 module.exports = PaymentType;

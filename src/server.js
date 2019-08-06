@@ -7,11 +7,17 @@ const express = require('express');
 const graphQLHTTP = require('express-graphql');
 const app = express();
 
-// schema
+// GraphQL Schema
 const schema = require('./schema.js');
 
 // route
-app.use('/graphql', graphQLHTTP({ schema, graphiql: true }));
+app.use(
+  '/graphql',
+  graphQLHTTP({
+    schema,
+    graphiql: true,
+  })
+);
 
 let isRunning = false;
 
