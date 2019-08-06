@@ -26,6 +26,13 @@ const PaymentType = new GraphQLObjectType({
       type: GraphQLNonNull(GraphQLID),
       resolve: (payment) => payment.order_id,
     },
+    order: {
+      type: OrderType,
+      args: {
+        orderId: {type:GraphQLID}
+      },
+      resolve: (payment) => resolvers.getOrderById(payment.orderId),
+    },
   },
 });
 

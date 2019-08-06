@@ -1,6 +1,7 @@
 'use strict';
 
 const {
+  GraphQLFloat,
   GraphQLID,
   GraphQLList,
   GraphQLNonNull,
@@ -18,7 +19,7 @@ const OrderType = new GraphQLObjectType({
   fields: {
     id: { type: GraphQLNonNull(GraphQLID) },
     description: { type: GraphQLNonNull(GraphQLString) },
-    total: { type: GraphQLNonNull(GraphQLString) },
+    total: { type: GraphQLNonNull(GraphQLFloat) },
     balanceDue: {
       type: GraphQLNonNull(GraphQLString),
       resolve: (order) => order.balance_due,
