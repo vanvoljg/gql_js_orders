@@ -1,7 +1,16 @@
 'use strict';
 
 const Order = function({ id, description, total, balanceDue }) {
-  this.id = id || undefined;
+  const now = new Date();
+  this.id =
+    id ||
+    'o' +
+      now.getUTCFullYear() +
+      now.getUTCMonth() +
+      now.getUTCDate() +
+      now.getUTCHours() +
+      now.getUTCMinutes() +
+      now.getUTCSeconds();
   this.description = description;
   this.total = total;
   this.balanceDue = balanceDue || total;

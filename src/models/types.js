@@ -9,14 +9,13 @@ const {
   GraphQLString,
 } = require('graphql');
 
-const PaymentType = require('./PaymentType.js');
 const resolvers = require('../pgResolvers.js');
 
 const OrderType = new GraphQLObjectType({
   name: 'Order',
   description: 'An order',
 
-  fields: {
+  fields: () => ({
     id: { type: GraphQLNonNull(GraphQLID) },
     description: { type: GraphQLNonNull(GraphQLString) },
     total: { type: GraphQLNonNull(GraphQLFloat) },
@@ -28,7 +27,26 @@ const OrderType = new GraphQLObjectType({
       type: GraphQLNonNull(GraphQLList(GraphQLNonNull(PaymentType))),
       resolve: (order) => resolvers.getPaymentsByOrderId(order.id),
     },
-  },
+  }),
 });
 
-module.exports = OrderType;
+const PaymentType = new GraphQLObjectType({
+  name: 'Payment',
+  description: 'A payment',
+
+  fields: () => ({
+    id: { type: GraphQLNonNull(GraphQLID) },
+    amount: { type: GraphQLNonNull(GraphQLFloat) },
+    appliedAt: {
+      type: GraphQLNonNull(GraphQLString),
+      resolve: (payment) => payment.applied_at,
+    },
+    note: { type: GraphQLNonNull(GraphQLString) },
+    order: {
+      type: GraphQLList(OrderType),
+      resolve: (payment) => resolvers.getOrderById(payment.order_id),
+    },
+  }),
+});
+
+module.exports = { OrderType, PaymentType };

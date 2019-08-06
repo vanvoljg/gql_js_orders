@@ -10,8 +10,7 @@ const {
   GraphQLString,
 } = require('graphql');
 
-const OrderType = require('./models/OrderType.js');
-const PaymentType = require('./models/PaymentType.js');
+const {OrderType, PaymentType} = require('./models/types.js');
 const resolvers = require('./pgResolvers.js');
 
 const QueryType = new GraphQLObjectType({
