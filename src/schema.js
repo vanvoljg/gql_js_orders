@@ -24,11 +24,6 @@ const QueryType = new GraphQLObjectType({
       type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OrderType))),
       resolve: () => resolvers.getOrders(),
     },
-    payments: {
-      description: 'Get a list of all payments, unpaginated',
-      type: GraphQLNonNull(GraphQLList(GraphQLNonNull(PaymentType))),
-      resolve: () => resolvers.getPayments(),
-    },
     orderById: {
       description: 'Get a specific order by ID',
       type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OrderType))),

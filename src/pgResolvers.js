@@ -52,16 +52,6 @@ const getOrderById = async (orderId) => {
 };
 
 /**
- * getPayments queries the database for a all payments.
- * @returns {Promise<Array>} A promise which resolves to an array of payments.
- */
-const getPayments = async () => {
-  const query = `SELECT id, amount, applied_at, note, order_id
-                 FROM payments;`;
-  return await poolQuery(query);
-};
-
-/**
  * getPaymentsByOrderId queries the database for payments made on an order specified
  * by ID.
  * @param {OrderId} orderId - The ID of the order to find payments for.
@@ -141,6 +131,5 @@ module.exports = {
   createOrder,
   getOrderById,
   getOrders,
-  getPayments,
   getPaymentsByOrderId,
 };
