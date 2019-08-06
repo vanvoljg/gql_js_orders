@@ -2,13 +2,12 @@
 
 // PostgreSQL connection
 const { Pool } = require('pg');
-const DATABASE_URL = process.env.DATABASE_URL;
 
 const pool = new Pool({
-  connectionString: DATABASE_URL,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
+  connectionString: process.env.DATABASE_URL,
+  max: process.env.DATABASE_MAX_CONNECTIONS,
+  idleTimeoutMillis: process.env.DATABASE_IDLE_TIMEOUT_MILLIS,
+  connectionTimeoutMillis: process.env.DATABASE_CONNECTION_TIMEOUT_MILLIS,
 });
 
 module.exports = {

@@ -1,6 +1,7 @@
 'use strict';
 
 const {
+  GraphQLFloat,
   GraphQLID,
   GraphQLNonNull,
   GraphQLObjectType,
@@ -15,7 +16,7 @@ const PaymentType = new GraphQLObjectType({
 
   fields: {
     id: { type: GraphQLNonNull(GraphQLID) },
-    amount: { type: GraphQLNonNull(GraphQLString) },
+    amount: { type: GraphQLNonNull(GraphQLFloat) },
     appliedAt: {
       type: GraphQLNonNull(GraphQLString),
       resolve: (payment) => payment.applied_at,
