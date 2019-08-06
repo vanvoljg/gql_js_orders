@@ -16,14 +16,22 @@ const OrderType = new GraphQLObjectType({
   description: 'An order',
 
   fields: () => ({
-    id: { type: GraphQLNonNull(GraphQLID) },
-    description: { type: GraphQLNonNull(GraphQLString) },
-    total: { type: GraphQLNonNull(GraphQLFloat) },
-    balanceDue: {
+    id: { description: 'The ID of the order', type: GraphQLNonNull(GraphQLID) },
+    description: {
+      description: 'The detailed description of the order',
       type: GraphQLNonNull(GraphQLString),
+    },
+    total: {
+      description: 'The order total',
+      type: GraphQLNonNull(GraphQLFloat),
+    },
+    balanceDue: {
+      description: 'The remaining balance due',
+      type: GraphQLNonNull(GraphQLFloat),
       resolve: (order) => order.balance_due,
     },
     paymentsApplied: {
+      description: 'Payments applied to this order',
       type: GraphQLNonNull(GraphQLList(GraphQLNonNull(PaymentType))),
       resolve: (order) => resolvers.getPaymentsByOrderId(order.id),
     },
@@ -35,7 +43,10 @@ const PaymentType = new GraphQLObjectType({
   description: 'A payment',
 
   fields: () => ({
-    id: { description: 'The ID of the order', type: GraphQLNonNull(GraphQLID) },
+    id: {
+      description: 'The ID of the payment',
+      type: GraphQLNonNull(GraphQLID),
+    },
     amount: {
       description: 'The payment amount',
       type: GraphQLNonNull(GraphQLFloat),

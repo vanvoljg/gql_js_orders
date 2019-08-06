@@ -99,10 +99,16 @@ const createOrder = async (args) => {
 const reduceOrderBalance = async (args) => {
   // Get the order in question and translate the snake_case column to camelCase
   const order = await getOrderById(args.orderId);
-  order[0].balanceDue = Number(order[0].balance_due);
+  order[0].balanceDue = order[0].balance_due;
 
+  // Updating the balance: avoid rounding errors by working in integers
+  // Could also be avoided by storing numbers as strings, converting to
+  // numbers for math, then back to strings for storage and display.
   const updatedOrder = new Order(order[0]);
-  updatedOrder.balanceDue -= args.amount;
+  updatedOrder.balanceDue =
+    (Math.round(updatedOrder.balanceDue * 100) -
+      Math.round(args.amount * 100)) /
+    100;
 
   const query = `UPDATE orders
                  SET id=$1, description=$2, total=$3, balance_due=$4
