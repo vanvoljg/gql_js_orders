@@ -35,14 +35,22 @@ const PaymentType = new GraphQLObjectType({
   description: 'A payment',
 
   fields: () => ({
-    id: { type: GraphQLNonNull(GraphQLID) },
-    amount: { type: GraphQLNonNull(GraphQLFloat) },
+    id: { description: 'The ID of the order', type: GraphQLNonNull(GraphQLID) },
+    amount: {
+      description: 'The payment amount',
+      type: GraphQLNonNull(GraphQLFloat),
+    },
     appliedAt: {
+      description: 'Timestamp when the payment was applied to the order',
       type: GraphQLNonNull(GraphQLString),
       resolve: (payment) => payment.applied_at,
     },
-    note: { type: GraphQLNonNull(GraphQLString) },
+    note: {
+      description: 'A note for the payment',
+      type: GraphQLNonNull(GraphQLString),
+    },
     order: {
+      description: 'The order this payment is applied to',
       type: GraphQLList(OrderType),
       resolve: (payment) => resolvers.getOrderById(payment.order_id),
     },

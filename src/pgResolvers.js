@@ -94,7 +94,7 @@ const createOrder = async (args) => {
 const reduceOrderBalance = async (args) => {
   const order = await getOrderById(args.orderId);
   const updatedOrder = new Order(order[0]);
-  console.log({args},{updatedOrder});
+  console.log({ args }, { updatedOrder });
   updatedOrder.balanceDue -= args.amount;
   const query = `UPDATE orders
                  SET id=$1, description=$2, total=$3, balance_due=$4

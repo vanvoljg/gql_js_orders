@@ -1,17 +1,10 @@
 'use strict';
 
 const Payment = function({ id, amount, note, orderId }) {
-  const now = new Date();
-  this.id =
-    id ||
-    'p' +
-      now.getUTCFullYear() +
-      now.getUTCMonth() +
-      now.getUTCDate() +
-      now.getUTCHours() +
-      now.getUTCMinutes() +
-      now.getUTCSeconds();
-  this.amount = Math.round(amount);
+  this.id = id;
+  // We want to round the amount to the nearest cent
+  // * 100 -> Round fractional part -> / 100 -> Rounded dollars w/ cents
+  this.amount = Math.round(amount * 100) / 100;
   this.appliedAt = new Date().toUTCString();
   this.note = note || '';
   this.orderId = orderId;
