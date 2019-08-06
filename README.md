@@ -2,11 +2,13 @@
 
 A GraphQL order and payment management endpoint with data persistence.
 
+Based on the `graphql`, `express-graphql`, `express`, and `pg` JavaScript libraries
+
 ## Deployment and setup
 
 ### Dependencies
 
-This application depends on the following:
+This application depends on the following system dependencies:
 
 - PostgreSQL >= v9.6
 - Node >= v7.6 (async/await support required)
