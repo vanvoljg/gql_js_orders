@@ -35,6 +35,7 @@ const poolQuery = async (query, values = []) => {
 const getOrders = async () => {
   const query = `SELECT id, description, total, balance_due
                  FROM orders`;
+
   return await poolQuery(query);
 };
 
@@ -48,13 +49,14 @@ const getOrderById = async (orderId) => {
   const query = `SELECT id, description, total, balance_due
                  FROM orders WHERE id=$1 LIMIT 1;`;
   const values = [Number(orderId)];
+
   return await poolQuery(query, values);
 };
 
 /**
  * getPaymentsByOrderId queries the database for payments made on an order specified
  * by ID.
- * @param {OrderId} orderId - The ID of the order to find payments for.
+ * @param {number} orderId - The ID of the order to find payments for.
  * @returns {Promise<Array>} A promise which resolves to an array of payments made
  * on the specified order, or an empty array if no payments are found.
  */
@@ -62,6 +64,7 @@ const getPaymentsByOrderId = async (orderId) => {
   const query = `SELECT id, amount, applied_at, note, order_id
                  FROM payments WHERE order_id=$1;`;
   const values = [Number(orderId)];
+
   return await poolQuery(query, values);
 };
 
@@ -76,11 +79,13 @@ const getPaymentsByOrderId = async (orderId) => {
  */
 const createOrder = async (args) => {
   const newOrder = new Order(args);
+
   const query = `INSERT INTO orders(description, total, balance_due)
                  VALUES ($1, $2, $3)
                  RETURNING *;`;
   const { description, total, balanceDue } = newOrder;
   const values = [description, total, balanceDue];
+
   return await poolQuery(query, values);
 };
 
@@ -88,20 +93,24 @@ const createOrder = async (args) => {
  * reduceOrderBalance takes in payment information and reduces the balance due
  * of the referenced order.
  * @param {Object} args - An object containing payment information.
- * @param {OrderId} args.orderId - An orderId to apply a payment to.
+ * @param {number} args.orderId - An orderId to apply a payment to.
  * @param {number} args.amount - The amount to reduce the balance by.
  */
 const reduceOrderBalance = async (args) => {
+  // Get the order in question and translate the snake_case column to camelCase
   const order = await getOrderById(args.orderId);
+  order[0].balanceDue = Number(order[0].balance_due);
+
   const updatedOrder = new Order(order[0]);
-  console.log({ args }, { updatedOrder });
   updatedOrder.balanceDue -= args.amount;
+
   const query = `UPDATE orders
                  SET id=$1, description=$2, total=$3, balance_due=$4
                  WHERE id=$1
                  RETURNING *;`;
   const { id, description, total, balanceDue } = updatedOrder;
   const values = [id, description, total, balanceDue];
+
   await poolQuery(query, values);
 };
 
@@ -110,19 +119,22 @@ const reduceOrderBalance = async (args) => {
  * before saving the payment information to the database.
  * @param {Object} args - An object containing payment information.
  * @param {number} args.amount - The payment amount.
- * @param {OrderId} args.orderId - The orderId to apply the payment to.
+ * @param {number} args.orderId - The orderId to apply the payment to.
  * @param {string} [args.note] - A note to attach to the payment.
  * @returns {Promise<Array>} A promise which resolves to an array containing the
  * newly created payment, or an empty array if there was an error.
  */
 const applyPayment = async (args) => {
   await reduceOrderBalance(args);
+
   const newPayment = new Payment(args);
+
   const query = `INSERT INTO payments(amount, applied_at, note, order_id)
                  VALUES ($1, $2, $3, $4)
                  RETURNING *;`;
   const { amount, appliedAt, note, orderId } = newPayment;
   const values = [amount, appliedAt, note, orderId];
+
   return await poolQuery(query, values);
 };
 
