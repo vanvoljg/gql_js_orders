@@ -4,7 +4,7 @@ require('dotenv').config();
 
 // GraphQL Endpoint
 const express = require('express');
-const graphQLHTTP = require('express-graphql');
+const { graphqlHTTP } = require('express-graphql');
 const app = express();
 
 // GraphQL Schema
@@ -13,7 +13,7 @@ const schema = require('./schema.js');
 // route
 app.use(
   '/graphql',
-  graphQLHTTP({
+  graphqlHTTP({
     schema,
     graphiql: process.env.NODE_ENV !== 'production',
   })
