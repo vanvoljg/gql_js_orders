@@ -19,7 +19,8 @@
     "express": "^4.17.1",
     "express-graphql": "^0.9.0",
     "graphql": "^14.4.2",
-    "pg": "^7.12.0"
+    "pg": "^7.12.0",
+    "pg-native": "^3.0.0"
   },
   "scripts": {
     "start": "node index.js",

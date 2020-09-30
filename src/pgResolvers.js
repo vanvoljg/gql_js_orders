@@ -1,8 +1,18 @@
 'use strict';
 
-const db = require('./pg.js');
 const Order = require('./models/order.js');
 const Payment = require('./models/payment.js');
+const { Pool } = require('pg').native;
+
+const config = {
+  connectionString: process.env.DATABASE_URL,
+  max: process.env.DATABASE_MAX_CONNECTIONS,
+  idleTimeoutMillis: process.env.DATABASE_IDLE_TIMEOUT_MILLIS,
+  connectionTimeoutMillis: process.env.DATABASE_CONNECTION_TIMEOUT_MILLIS,
+  ssl: { rejectUnauthorized: false },
+};
+
+const db = new Pool(config);
 
 /**
  * poolQuery uses the connection pool from pg to make queries to the database.
@@ -16,13 +26,14 @@ const poolQuery = async (query, values = []) => {
   let result;
 
   try {
-    client = await db.pool.connect();
+    client = await db.connect();
     result = await client.query(query, values);
   } catch (error) {
     console.error(error);
     result.rows = Promise.resolve([]);
   } finally {
-    await client.release(true);
+    // Always release the pool connection, even if there is an error.
+    client.release(true);
   }
 
   return result.rows;
@@ -34,7 +45,7 @@ const poolQuery = async (query, values = []) => {
  */
 const getOrders = async () => {
   const query = `SELECT id, description, total, balance_due
-                 FROM orders`;
+                 FROM orders;`;
 
   return await poolQuery(query);
 };
@@ -43,7 +54,7 @@ const getOrders = async () => {
  * getOrderById queries the database for a specific order.
  * @param {number} orderId - The ID of the order to search for.
  * @returns {Promise<Array>} A promise which resolves to an array containing the
- * found order, or an empty array of no order is found.
+ * found order, or an empty array if no order is found.
  */
 const getOrderById = async (orderId) => {
   const query = `SELECT id, description, total, balance_due
@@ -90,39 +101,29 @@ const createOrder = async (args) => {
 };
 
 /**
- * reduceOrderBalance takes in payment information and reduces the balance due
- * of the referenced order.
- * @param {Object} args - An object containing payment information.
- * @param {number} args.orderId - An orderId to apply a payment to.
- * @param {number} args.amount - The amount to reduce the balance by.
+ * reduceOrderBalance takes in an order and payment information and reduces the
+ * balance due of the referenced order.
+ * @param {Object} order - An order query result from SQL
+ * @param {number} amount - The amount by which to reduce the order total
+ * @returns {Object} The order with its balance reduced by the amount provided
  */
-const reduceOrderBalance = async (args) => {
-  // Get the order in question and translate the snake_case column to camelCase
-  const order = await getOrderById(args.orderId);
-  order[0].balanceDue = order[0].balance_due;
-
+const reduceOrderBalance = (order, amount) => {
   // Updating the balance: avoid rounding errors by working in integers
   // Could also be avoided by storing numbers as strings, converting to
   // numbers for math, then back to strings for storage and display.
-  const updatedOrder = new Order(order[0]);
+  const updatedOrder = new Order(order);
   updatedOrder.balanceDue =
-    (Math.round(updatedOrder.balanceDue * 100) -
-      Math.round(args.amount * 100)) /
+    (Math.round(updatedOrder.balanceDue * 100) - Math.round(amount * 100)) /
     100;
 
-  const query = `UPDATE orders
-                 SET id=$1, description=$2, total=$3, balance_due=$4
-                 WHERE id=$1
-                 RETURNING *;`;
-  const { id, description, total, balanceDue } = updatedOrder;
-  const values = [id, description, total, balanceDue];
-
-  await poolQuery(query, values);
+  return updatedOrder;
 };
 
 /**
  * applyPayment takes in payment information and reduces the referenced order's balance
  * before saving the payment information to the database.
+ * The transaction is atomic. It either fully inserts payment and updates the order
+ * or rolls back.
  * @param {Object} args - An object containing payment information.
  * @param {number} args.amount - The payment amount.
  * @param {number} args.orderId - The orderId to apply the payment to.
@@ -131,17 +132,47 @@ const reduceOrderBalance = async (args) => {
  * newly created payment, or an empty array if there was an error.
  */
 const applyPayment = async (args) => {
-  await reduceOrderBalance(args);
+  // Get the order in question and translate the snake_case column to camelCase
+  const order = await getOrderById(args.orderId);
+  order[0].balanceDue = order[0].balance_due;
+
+  const updatedOrder = reduceOrderBalance(order[0], args.amount);
 
   const newPayment = new Payment(args);
 
-  const query = `INSERT INTO payments(amount, applied_at, note, order_id)
+  const client = await db.connect();
+  let result;
+
+  try {
+    await client.query('BEGIN');
+
+    const { amount, appliedAt, note, orderId } = newPayment;
+    const paymentValues = [amount, appliedAt, note, orderId];
+    const paymentQuery = `INSERT INTO payments(amount, applied_at, note, order_id)
                  VALUES ($1, $2, $3, $4)
                  RETURNING *;`;
-  const { amount, appliedAt, note, orderId } = newPayment;
-  const values = [amount, appliedAt, note, orderId];
 
-  return await poolQuery(query, values);
+    result = await client.query(paymentQuery, paymentValues);
+
+    const orderUpdateQuery = `UPDATE orders
+                 SET id=$1, description=$2, total=$3, balance_due=$4
+                 WHERE id=$1
+                 RETURNING *;`;
+    const { id, description, total, balanceDue } = updatedOrder;
+    const orderUpdateValues = [id, description, total, balanceDue];
+
+    await client.query(orderUpdateQuery, orderUpdateValues);
+
+    await client.query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error(error);
+    result.rows = Promise.resolve([]);
+  } finally {
+    client.release(true);
+  }
+
+  return result.rows;
 };
 
 module.exports = {

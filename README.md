@@ -27,17 +27,22 @@ This application depends on the following system dependencies:
 (The below instructions use `yarn` as a package management tool. You may substitute `npm` if you prefer.)
 
 - Clone the repository, check out the `develop` branch, and install node dependencies:
+
   ```
   git clone https://github.com/vanvoljg/peek_orders.git
   cd peek_orders
   git checkout develop
   yarn install
   ```
+
 - Prepare the database for use:
+
   ```
   psql -f ./src/data/schema.sql -d peek_orders
   ```
+
   This assumes your database is named `peek_orders`. If your database is named differently, use that name instead.
+
 - run `yarn start`
 
 ### Endpoint
@@ -65,6 +70,7 @@ This application depends on the following system dependencies:
     paymentsApplied: [PaymentType!]!
   }
   ```
+
 - ```
   PaymentType {
     id: ID!

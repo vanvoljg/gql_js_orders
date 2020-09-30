@@ -32,7 +32,7 @@ const OrderType = new GraphQLObjectType({
     },
     paymentsApplied: {
       description: 'Payments applied to this order',
-      type: GraphQLNonNull(GraphQLList(GraphQLNonNull(PaymentType))),
+      type: GraphQLNonNull(GraphQLList((PaymentType))),
       resolve: (order) => resolvers.getPaymentsByOrderId(order.id),
     },
   }),
@@ -62,7 +62,7 @@ const PaymentType = new GraphQLObjectType({
     },
     order: {
       description: 'The order this payment is applied to',
-      type: GraphQLList(OrderType),
+      type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OrderType))),
       resolve: (payment) => resolvers.getOrderById(payment.order_id),
     },
   }),

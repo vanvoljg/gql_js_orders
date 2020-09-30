@@ -20,16 +20,16 @@ const QueryType = new GraphQLObjectType({
   fields: {
     orders: {
       description: 'Get all orders, unpaginated',
-      type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OrderType))),
+      type: GraphQLList(GraphQLNonNull(OrderType)),
       resolve: () => resolvers.getOrders(),
     },
     orderById: {
       description: 'Get a specific order by ID',
-      type: GraphQLNonNull(GraphQLList(GraphQLNonNull(OrderType))),
+      type: GraphQLList(GraphQLNonNull(OrderType)),
       args: {
         id: { type: GraphQLNonNull(GraphQLID) },
       },
-      resolve: (root, args) => resolvers.getOrderById(args.id),
+      resolve: (_root, args) => resolvers.getOrderById(args.id),
     },
   },
 });
@@ -45,9 +45,8 @@ const MutationType = new GraphQLObjectType({
       args: {
         description: { type: GraphQLNonNull(GraphQLString) },
         total: { type: GraphQLNonNull(GraphQLFloat) },
-        balanceDue: { type: GraphQLFloat },
       },
-      resolve: (root, args) => resolvers.createOrder(args),
+      resolve: (_root, args) => resolvers.createOrder(args),
     },
     applyPayment: {
       description: 'Apply a payment to an order',
@@ -57,7 +56,7 @@ const MutationType = new GraphQLObjectType({
         note: { type: GraphQLString },
         orderId: { type: GraphQLNonNull(GraphQLID) },
       },
-      resolve: (root, args) => resolvers.applyPayment(args),
+      resolve: (_root, args) => resolvers.applyPayment(args),
     },
   },
 });
