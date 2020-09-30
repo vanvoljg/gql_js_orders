@@ -45,7 +45,7 @@ const MutationType = new GraphQLObjectType({
       args: {
         description: { type: GraphQLNonNull(GraphQLString) },
         total: { type: GraphQLNonNull(GraphQLFloat) },
-        balanceDue: { type: GraphQLFloat },
+        // balanceDue: { type: GraphQLNonNull(GraphQLFloat) },
       },
       resolve: (root, args) => resolvers.createOrder(args),
     },
