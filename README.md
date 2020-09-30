@@ -11,7 +11,7 @@ Based on the `graphql`, `express-graphql`, `express`, and `pg` JavaScript librar
 This application depends on the following system dependencies:
 
 - PostgreSQL >= v9.6
-- Node >= v7.6 (async/await support required)
+- Node >= v8.0 (async/await support required)
 
 ### .env Requirements
 
@@ -51,8 +51,8 @@ This application depends on the following system dependencies:
 
 ### Queries
 
-- `orders`: `[OrderType!]!`
-- `orderById(id: ID!)`: `[OrderType!]!`
+- `orders`: `[OrderType]!`
+- `orderById(id: ID!)`: `[OrderType]!`
 
 ### Mutations
 
@@ -66,8 +66,7 @@ This application depends on the following system dependencies:
     id: ID!
     description: String!
     total: Float!
-    balanceDue: Float!
-    paymentsApplied: [PaymentType!]!
+    paymentsApplied: [PaymentType]!
   }
   ```
 
