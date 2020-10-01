@@ -6,10 +6,9 @@ const { Pool } = require('pg').native;
 
 const config = {
   connectionString: process.env.DATABASE_URL,
-  max: process.env.DATABASE_MAX_CONNECTIONS,
-  idleTimeoutMillis: process.env.DATABASE_IDLE_TIMEOUT_MILLIS,
-  connectionTimeoutMillis: process.env.DATABASE_CONNECTION_TIMEOUT_MILLIS,
-  ssl: { rejectUnauthorized: false },
+  max: process.env.DATABASE_MAX_CONNECTIONS || 10,
+  idleTimeoutMillis: process.env.DATABASE_IDLE_TIMEOUT_MILLIS || 10000,
+  connectionTimeoutMillis: process.env.DATABASE_CONNECTION_TIMEOUT_MILLIS || 0,
 };
 
 const db = new Pool(config);
